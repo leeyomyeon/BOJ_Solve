@@ -9,11 +9,10 @@ public class Main15644 {
     public static int R, C, res;
     public static char[][] arr;
     public static boolean[][][][] visited;
-    public static long[][][][] track;
     public static ArrayDeque<Point> deque;
     public static class Point {
         int redR, redC, blueR, blueC, dir, cnt;
-
+        long track;
         public void setRedR(int redR) {
             this.redR = redR;
         }
@@ -27,20 +26,21 @@ public class Main15644 {
             this.blueC = blueC;
         }
 
-        public Point(int redR, int redC, int blueR, int blueC, int dir, int cnt) {
+        public Point(int redR, int redC, int blueR, int blueC, int dir, int cnt, long track) {
             this.redR = redR;
             this.redC = redC;
             this.blueR = blueR;
             this.blueC = blueC;
             this.dir = dir;
             this.cnt = cnt;
+            this.track = track;
         }
     }
     public static void main(String[] args) throws Exception {
         FastReader fr = new FastReader();
         R = fr.nextInt();
         C = fr.nextInt();
-        Point start = new Point(0, 0, 0, 0, -1, 0);
+        Point start = new Point(0, 0, 0, 0, -1, 0, 0);
         arr = new char[R][C];
 
         for(int i = 0; i < R; i++) {
@@ -63,7 +63,7 @@ public class Main15644 {
             bw.newLine();
             // 상 우 하 좌
             char[] t = {' ', 'U', 'R', 'D', 'L'};
-            long k = track[res.redR][res.redC][res.blueR][res.blueC];
+            long k = res.track;
             long div = (long) Math.pow(10, res.cnt - 1);
             while(k != 0) {
                 int p = (int) (k / div);
@@ -78,7 +78,6 @@ public class Main15644 {
     public static Point move(Point start) {
         // 왔던 방향, 반대방향은 갈 필요 없음
         visited = new boolean[R][C][R][C];
-        track = new long[R][C][R][C];
         visited[start.redR][start.redC][start.blueR][start.blueC] = true;
         deque = new ArrayDeque<>();
         deque.add(start);
@@ -116,8 +115,7 @@ public class Main15644 {
                 }
                 if(!visited[nRedR][nRedC][nBlueR][nBlueC] && current.cnt + 1 <= 10) {
                     visited[nRedR][nRedC][nBlueR][nBlueC] = true;
-                    track[nRedR][nRedC][nBlueR][nBlueC] = track[current.redR][current.redC][current.blueR][current.blueC] * 10 + (d + 1);
-                    deque.add(new Point(nRedR, nRedC, nBlueR, nBlueC, d, current.cnt + 1));
+                    deque.add(new Point(nRedR, nRedC, nBlueR, nBlueC, d, current.cnt + 1, current.track * 10 + (d + 1)));
                 }
             }
         }
