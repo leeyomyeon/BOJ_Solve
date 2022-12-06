@@ -7,7 +7,7 @@ public class Main11443 {
     public static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
     public static long[][] fibo = {{1, 1},{1, 0}};
-    public static final int MOD = 1000000007;
+    public static final int MOD = 1_000_000_007;
 
     public static void main(String[] args) throws Exception {
         long N = Long.parseLong(br.readLine());
