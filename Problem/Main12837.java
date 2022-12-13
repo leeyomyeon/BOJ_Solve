@@ -19,6 +19,7 @@ public class Main12837 {
             int a = fr.nextInt();
             int b = fr.nextInt();
             if(command == 1) {
+                // 값의 변화량을 추가하는게 아님
                 update(1, N, 1, a, b);
                 arr[a] = b;
             } else {
@@ -33,7 +34,6 @@ public class Main12837 {
         if(left > end || right < start) {
             return 0;
         }
-        // left <= start && right >= end
         if(left <= start && end <= right) {
             return segTree[idx];
         }
