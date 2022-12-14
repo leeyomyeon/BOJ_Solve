@@ -7,7 +7,6 @@ public class Main7578 {
     public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out), 1024 * 64);
     public static int N;
     public static int[] arrA, segTree;
-    public static boolean[] visited;
     public static int[] factory;
     public static void main(String[] args) throws Exception {
         FastReader fr = new FastReader();
@@ -15,7 +14,6 @@ public class Main7578 {
         factory = new int[1000001];  // 각 번호에 맞는 인덱스 저장
         arrA = new int[N + 1];
         segTree = new int[N * 4];
-        visited = new boolean[N + 1];
         for(int i = 1; i <= N; i++) {
             arrA[i] = fr.nextInt();
         }
@@ -26,7 +24,6 @@ public class Main7578 {
         for(int i = 1; i <= N; i++) {
             int k = find(1, N, 1, factory[arrA[i]], N);
             sum += k;
-            visited[factory[arrA[i]]] = true;
             update(1, N, 1, factory[arrA[i]], 1);
         }
         bw.write(Long.toString(sum));
@@ -47,9 +44,7 @@ public class Main7578 {
         if(target < start || end < target) {
             return;
         }
-        if(visited[target]) {
-            segTree[idx] += value;
-        }
+        segTree[idx] += value;
         if(start == end) {
             return;
         }
