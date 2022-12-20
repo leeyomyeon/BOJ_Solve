@@ -38,6 +38,7 @@ public class FastIO {
         }
 
         public int nextInt() throws IOException {
+            // 출처 https://blog.naver.com/jihogrammer/222314445259
             int ret = 0;
             byte c = read();
             while (c <= ' ') {
@@ -48,13 +49,10 @@ public class FastIO {
                 c = read();
             }
             do {
-                ret = ret * 10 + c - '0';
-            } while ((c = read()) >= '0' && c <= '9');
+                ret = (ret << 3) + (ret << 1) + (c & 15);
+            } while ((c = read()) > 32);
 
-            if (neg) {
-                return -ret;
-            }
-            return ret;
+            return neg ? ~ret + 1 : ret;
         }
 
         public long nextLong() throws IOException {
