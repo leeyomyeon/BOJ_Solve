@@ -8,7 +8,8 @@ public class Main15949 {
     public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out), 1024 * 64);
     public static int N, M;
     public static int[][] arr;
-    public static int[][] group;
+    public static boolean[][] visited;
+    public static ArrayList<Codel> nextList;
     public static ArrayList<Codel[][]> sortedCodel;
     public static class Codel {
         int r, c;
@@ -39,21 +40,19 @@ public class Main15949 {
         N = fr.nextInt();
         M = fr.nextInt();
         arr = new int[N][M];
-        group = new int[N][M]; // 구역의 번호 저장
         for(int i = 0; i < N; i++) {
             for(int j = 0; j < M; j++) {
                 arr[i][j] = fr.nextChar();
-                group[i][j] = -1;
             }
         }
-        init();
         Codel start = new Codel(0, 0, 1, 0);
         Loop1:
-        for(int s = 0; s <= sortedCodel.size(); s++) {
+        while(true) {
             bw.write(arr[start.r][start.c]);
+            nextList = getNextCodelList(start.r, start.c);
             for(int p = 0; p < 4; p++) {
                 for(int k = 0; k < 2; k++) {
-                    Codel next = sortedCodel.get(group[start.r][start.c])[start.dp][start.cc];
+                    Codel next = getSortedCodel(start.dp, start.cc);
                     int nr = next.r + dr[start.dp];
                     int nc = next.c + dc[start.dp];
                     if(nr >= 0 && nr < N && nc >= 0 && nc < M && arr[nr][nc] != 'X') { // 다음으로 갈수 있으면
@@ -73,79 +72,61 @@ public class Main15949 {
         bw.flush();
         bw.close();
     }
-    public static void init() {
-        boolean[][] visited = new boolean[N][M];
-        sortedCodel = new ArrayList<>();
-        int num = 0;
+    public static ArrayList<Codel> getNextCodelList(int r, int c) {
+        ArrayList<Codel> list = new ArrayList<>();
+        visited = new boolean[N][M];
+        visited[r][c] = true;
         ArrayDeque<Codel> deque = new ArrayDeque<>();
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                if(!visited[i][j] && arr[i][j] != 'X') {
-                    visited[i][j] = true;
-                    group[i][j] = num;
-                    deque.add(new Codel(i, j, 0, 0));
-                    ArrayList<Codel> selected = new ArrayList<>();
-                    selected.add(new Codel(i, j, 0, 0));
-                    while(!deque.isEmpty()) {
-                        Codel current = deque.removeFirst();
-
-                        for(int d = 0; d < 4; d++) {
-                            int nr = current.r + dr[d];
-                            int nc = current.c + dc[d];
-                            if(nr >= 0 && nr < N && nc >= 0 && nc < M && !visited[nr][nc] && arr[i][j] == arr[nr][nc]) {
-                                visited[nr][nc] = true;
-                                group[nr][nc] = num;
-                                Codel next = new Codel(nr, nc, current.dp, current.cc);
-                                deque.add(next);
-                                selected.add(next);
-                            }
-                        }
-                    }
-                    Codel[][] codelList = new Codel[4][4];
-                    for(int d = 0; d < 4; d++) {
-                        for(int k = 1; k <= 3; k += 2) {
-                            int nk = (d + k) % 4;
-                            int finalD = d;
-                            Collections.sort(selected, (o1, o2) -> {
-                                if(finalD == 0) {  // 상
-                                    if(nk == 1 && o1.r == o2.r) {  // 우
-                                        return o2.c - o1.c;
-                                    } else if(nk == 3 && o1.r == o2.r) {    // 좌
-                                        return o1.c - o2.c;
-                                    }
-                                    return o1.r - o2.r;
-                                } else if(finalD == 1) {   // 우
-                                    if(nk == 0 && o1.c == o2.c) { // 상
-                                        return o1.r - o2.r;
-                                    } else if (nk == 2 && o1.c == o2.c) {    // 하
-                                        return o2.r - o1.r;
-                                    }
-                                    return o2.c - o1.c;
-                                } else if(finalD == 2) {   // 하
-                                    if(nk == 1 && o1.r == o2.r) {  // 우
-                                        return o2.c - o1.c;
-                                    } else if (nk == 3 && o1.r == o2.r) {    // 좌
-                                        return o1.c - o2.c;
-                                    }
-                                    return o2.r - o1.r;
-                                } else {    // 좌
-                                    if(nk == 0 && o1.c == o2.c) { // 상
-                                        return o1.r - o2.r;
-                                    } else if(nk == 2 && o1.c == o2.c) {    // 하
-                                        return o2.r - o1.r;
-                                    }
-                                    return o1.c - o2.c;
-                                }
-                            });
-                            Codel sorted = selected.get(0);
-                            codelList[d][nk] = sorted;
-                        }
-                    }
-                    sortedCodel.add(codelList);
-                    num++;
+        list.add(new Codel(r, c, 0, 0));
+        deque.add(new Codel(r, c, 0, 0));
+        while(!deque.isEmpty()) {
+            Codel current = deque.removeFirst();
+            for(int d = 0; d < 4; d++) {
+                int nr = current.r + dr[d];
+                int nc = current.c + dc[d];
+                if(nr >= 0 && nr < N && nc >= 0 && nc < M && !visited[nr][nc] && arr[r][c] == arr[nr][nc]) {
+                    visited[nr][nc] = true;
+                    Codel next = new Codel(nr, nc, current.dp, current.cc);
+                    deque.add(next);
+                    list.add(next);
                 }
             }
         }
+        return list;
+    }
+    public static Codel getSortedCodel(int dr, int cc) {
+        Collections.sort(nextList, (o1, o2) -> {
+            if(dr == 0) {  // 상
+                if(cc == 1 && o1.r == o2.r) {  // 우
+                    return o2.c - o1.c;
+                } else if(cc == 3 && o1.r == o2.r) {    // 좌
+                    return o1.c - o2.c;
+                }
+                return o1.r - o2.r;
+            } else if(dr == 1) {   // 우
+                if(cc == 0 && o1.c == o2.c) { // 상
+                    return o1.r - o2.r;
+                } else if (cc == 2 && o1.c == o2.c) {    // 하
+                    return o2.r - o1.r;
+                }
+                return o2.c - o1.c;
+            } else if(dr == 2) {   // 하
+                if(cc == 1 && o1.r == o2.r) {  // 우
+                    return o2.c - o1.c;
+                } else if (cc == 3 && o1.r == o2.r) {    // 좌
+                    return o1.c - o2.c;
+                }
+                return o2.r - o1.r;
+            } else {    // 좌
+                if(cc == 0 && o1.c == o2.c) { // 상
+                    return o1.r - o2.r;
+                } else if(cc == 2 && o1.c == o2.c) {    // 하
+                    return o2.r - o1.r;
+                }
+                return o1.c - o2.c;
+            }
+        });
+        return nextList.get(0);
     }
     // 상우하좌
     public static int[] dr = {-1, 0, 1, 0};
@@ -212,34 +193,3 @@ public class Main15949 {
         }
     }
 }
-/*
-8 8
-RRRGGGGG
-RRYYGGGP
-RYYYYYYP
-RRRYYYYP
-RRYYYYGP
-RYYRRYGP
-BBRRRGGG
-BBBBRRGG
-
-→↑↓←
-1 →↑
-2 →↓
-3 ↓←
-4 ↓→
-5 ←↓
-6 ←↑
-7 ↑→
-8 ↑←
-
-8 8
-XXXRRRRR
-GYRRGGGG
-GYRRYGGY
-GYRYYYYY
-GYYYYRRR
-BBBXXXRR
-BBBBGGGG
-BBBBBGGG
- */
