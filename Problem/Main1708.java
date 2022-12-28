@@ -46,6 +46,10 @@ public class Main1708 {
         stack.add(list.get(1));
         for(int i = 2; i < list.size(); i++) {
             Point next = list.get(i);
+            /*
+            만약 stack의 최상단에 있는 두 점을 이은 직선에 대해, 현재 탐색하는 정점이 직선의 왼쪽에 존재한다면 stack에 push한다.
+            그렇지 않다면 stack을 pop하고 위 조건을 다시 확인한다.
+             */
             while(stack.size() >= 2 && CCW(stack.get(stack.size() - 2), stack.get(stack.size() - 1), next) <= 0) {
                 stack.pop();
             }
