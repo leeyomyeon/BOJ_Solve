@@ -9,7 +9,6 @@ public class Main13306 {
     public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out), 1024 * 64);
     public static int N, Q;
     public static int[] arr, parent, result;
-    public static ArrayList<ArrayList<Integer>> list;
     public static ArrayList<Query> queryList;
     public static class Query {
         int command, from, to;
@@ -25,17 +24,13 @@ public class Main13306 {
         N = fr.nextInt();
         Q = fr.nextInt();
         arr = new int[N + 1];
-        list = new ArrayList<>();
         result = new int[Q];
         for(int i = 0; i <= N; i++) {
             arr[i] = i;
-            list.add(new ArrayList<>());
         }
         parent = new int[N + 1];
         for(int i = 2; i <= N; i++) {
             int from = fr.nextInt();    // 부모의 정점
-            list.get(from).add(i);
-            list.get(i).add(from);
             parent[i] = from;
         }
         queryList = new ArrayList<>();
@@ -57,21 +52,26 @@ public class Main13306 {
         // result[idx]
         for(int i = queryList.size() - 1; i >= 0; i--) { // 쿼리를 거꾸로 수행
             Query current = queryList.get(i);
+            int x = find(current.from);
+            int y = find(current.to);
             if(current.command == 1) {
-                int x = find(current.from);
-                int y = find(current.to);
                 result[idx--] = x == y ? 1 : 0;
             } else {
-                int x = find(current.from);
-                int y = find(current.to);
                 if(x != y) {
                     union(current.from, current.to);
                 }
             }
         }
         for(int k : result) {
-            bw.write(k == 1 ? "YES" : "NO");
-            bw.newLine();
+            if(k == 1) {
+                bw.write(89);
+                bw.write(69);
+                bw.write(83);
+            } else {
+                bw.write(78);
+                bw.write(79);
+            }
+            bw.write(10);
         }
         bw.flush();
         bw.close();
