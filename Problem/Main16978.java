@@ -52,6 +52,7 @@ public class Main16978 {
         queryList.sort(Comparator.comparingInt(o -> o.a));
         int idx = 0;
         for (Query query : queryList) {
+            // k번째 update쿼리까지 한번에 업데이트 한 후 res출력
             if(query.a > idx) {
                 for (int j = idx; j < query.a; j++) {
                     Query updateQuery = updateList.get(j);
@@ -70,24 +71,7 @@ public class Main16978 {
         bw.flush();
         bw.close();
     }
-    /*
-5
-1 2 3 4 5
-7
-1 2 5
-2 0 1 3
-2 1 1 3
-1 4 2
-2 0 2 5
-2 1 2 5
-2 2 2 5
 
-6
-9
-14
-17
-15
-     */
     public static long makeSegTree(int start, int end, int idx) {
         if(start == end) {
             segTree[idx] = arr[start];
