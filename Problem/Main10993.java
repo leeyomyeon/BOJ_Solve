@@ -68,38 +68,6 @@ public class Main10993 {
         }
         dnq((value - 1) % 2 == 1 ? startR + 1 : startR + (R[value] / 2), startC + (C[value] / 4) + 1, value - 1);
     }
-/*
-1 = 1
-2배하고 + 3
-2 = 5
-*****
- ***
-  *
-3 = 13
-      *
-     * *
-    *   *
-   *******
-  *  ***  *
- *    *    *
-*************
-4 = 29
-*****************************
- *            *            *
-  *          * *          *
-   *        *   *        *
-    *      *******      *
-     *    *  ***  *    *
-      *  *    *    *  *
-       ***************
-        *           *
-         *         *
-          *       *
-           *     *
-            *   *
-             * *
-              *
-*/
 
     public static class FastReader {
         private final DataInputStream din;
