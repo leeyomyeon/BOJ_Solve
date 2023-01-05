@@ -1,4 +1,4 @@
-package SampleAPIConnect;
+package APIConnect;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.util.ArrayList;

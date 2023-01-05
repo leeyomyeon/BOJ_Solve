@@ -1,4 +1,4 @@
-package SampleAPIConnect;
+package APIConnect;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;

@@ -1,4 +1,4 @@
-package SampleAPIConnect;
+package APIConnect;
 
 public class SampleDTO implements Comparable<SampleDTO> {
     int a;

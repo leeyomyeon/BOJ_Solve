@@ -1,4 +1,4 @@
-package SampleAPIConnect;
+package APIConnect;
 
 public class Main {
     public static SampleAPIController sampleAPIController = new SampleAPIController();
