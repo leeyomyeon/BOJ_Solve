@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 public class Main2660 {
     public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out), 1024 * 64);
-    // 플로이드 워셜
     public static int N;
     public static boolean[] visited;
     public static int[] score;
@@ -66,32 +65,17 @@ public class Main2660 {
         }
         bw.write(minCnt + " " + cnt + "\n");
         for(int i = 1; i <= N; i++) {
-            if(score[i]  == minCnt) {
+            if(score[i] == minCnt) {
                 bw.write(i + " ");
             }
         }
         bw.flush();
         bw.close();
     }
-/*
-예를 들어 어느 회원이 다른 모든 회원과 친구이면, 이 회원의 점수는 1점이다.
-어느 회원의 점수가 2점이면, 다른 모든 회원이 친구이거나 친구의 친구임을 말한다.
-또한 어느 회원의 점수가 3점이면, 다른 모든 회원이 친구이거나, 친구의 친구이거나, 친구의 친구의 친구임을 말한다
-1-2-3
-   \|\
-    4-5
 
-1 = 3
-2 = 2
-3 = 2
-4 = 2
-5 = 3
-2 3
-2 3 4
-*/
     public static class FastReader {
         private final DataInputStream din;
-        private final int BUFFER_SIZE = 1 << 16;
+        private final int BUFFER_SIZE = 1 << 4;
         private final byte[] buffer;
         private int bufferPointer, bytesRead;
 
