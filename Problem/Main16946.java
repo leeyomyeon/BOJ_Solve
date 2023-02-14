@@ -3,112 +3,96 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayDeque;
-import java.util.HashSet;
+import java.util.ArrayList;
 
 public class Main16946 {
     public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out), 1024 * 64);
-    public static int N, M;
-    public static int[] arr, cost;
-    public static char[][] map;
-    public static boolean[][] visited;
-    public static ArrayDeque<Point> deque;
-    public static class Point {
-        int r, c;
-        public Point(int r, int c) {
+    public static int R, C;
+    public static int[][] arr, sum, visited;
+    public static ArrayList<Node> list;
+    public static class Node {
+        int r, c, area;
+
+        public Node(int r, int c, int area) {
             this.r = r;
             this.c = c;
+            this.area = area;
         }
     }
     public static void main(String[] args) throws Exception {
         FastReader fr = new FastReader();
-        N = fr.nextInt();
-        M = fr.nextInt();
-        arr = new int[N * M];
-        cost = new int[N * M];
-        for(int i = 0; i < arr.length; i++) {
-            arr[i] = i;
-            cost[i] = 1;
-        }
-        map = new char[N][M];
-        visited = new boolean[N][M];
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                map[i][j] = fr.nextChar();
+        R = fr.nextInt();
+        C = fr.nextInt();
+        arr = new int[R][C];
+        sum = new int[R][C];
+        visited = new int[R][C];
+        for(int i = 0; i < R; i++) {
+            for(int j = 0; j < C; j++) {
+                if(fr.nextChar() == '1') {
+                    arr[i][j] = -1;
+                }
             }
         }
-        deque = new ArrayDeque<>();
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                if(map[i][j] == '0' && !visited[i][j]) {
-                    visited[i][j] = true;
-                    deque.add(new Point(i, j));
+        list = new ArrayList<>();
+        list.add(null);
+        int cnt = 1;
+        for(int i = 0; i < R; i++) {
+            for(int j = 0; j < C; j++) {
+                if(arr[i][j] == 0) {
+                    ArrayDeque<Node> deque = new ArrayDeque<>();
+                    int area = 1;
+                    arr[i][j] = cnt;
+                    deque.add(new Node(i, j, 0));
                     while(!deque.isEmpty()) {
-                        Point current = deque.removeFirst();
-                        int from = current.r * M + current.c;
+                        Node current = deque.removeFirst();
                         for(int d = 0; d < 4; d++) {
                             int nr = current.r + dr[d];
                             int nc = current.c + dc[d];
-                            if(nr >= 0 && nr < N && nc >= 0 && nc < M && !visited[nr][nc] && map[nr][nc] == '0') {
-                                visited[nr][nc] = true;
-                                int to = nr * M + nc;
-                                union(from, to);
-                                deque.add(new Point(nr, nc));
+                            if(nr >= 0 && nr < R && nc >= 0 && nc < C && arr[nr][nc] == 0) {
+                                arr[nr][nc] = cnt;
+                                deque.add(new Node(nr, nc, 0));
+                                area++;
                             }
+                        }
+                    }
+                    list.add(new Node(i, j, area));
+                    cnt++;
+                }
+            }
+        }
+        ArrayDeque<Node> deque = new ArrayDeque<>();
+        for(int i = 1; i < list.size(); i++) {
+            Node node = list.get(i);
+            visited[node.r][node.c] = i;
+            deque.add(node);
+            while(!deque.isEmpty()) {
+                Node current = deque.removeFirst();
+
+                for(int d = 0; d < 4; d++) {
+                    int nr = current.r + dr[d];
+                    int nc = current.c + dc[d];
+                    if(nr >= 0 && nr < R && nc >= 0 && nc < C && visited[nr][nc] != i) {
+                        visited[nr][nc] = i;
+                        if(arr[nr][nc] == -1) {
+                            sum[nr][nc] += node.area;
+                        } else {
+                            deque.add(new Node(nr, nc, node.area));
                         }
                     }
                 }
             }
         }
-        HashSet<Integer> set = new HashSet<>();
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                if(map[i][j] == '0') {
-                    bw.write(48);
-                } else {
-                    int sum = 0;
-                    for(int d = 0; d < 4; d++) {
-                        int nr = i + dr[d];
-                        int nc = j + dc[d];
-                        if(nr >= 0 && nr < N && nc >= 0 && nc < M && map[nr][nc] == '0') {
-                            int target = find(nr * M + nc);
-                            if(!set.contains(target)) {
-                                set.add(target);
-                                sum += cost[target];
-                            }
-                        }
-                    }
-                    set.clear();
-                    bw.write(((sum + 1) % 10) + 48);
-                }
+        for(int i = 0; i < R; i++) {
+            for(int j = 0; j < C; j++) {
+                bw.write(arr[i][j] == -1 ? ((sum[i][j] + 1) % 10) + 48 : 48);
             }
             bw.newLine();
         }
-        bw.write("");
         bw.flush();
         bw.close();
     }
     public static int[] dr = {-1, 1, 0, 0};
     public static int[] dc = {0, 0, -1, 1};
-
-    public static void union(int from, int to) {
-        int x = find(from);
-        int y = find(to);
-        if(x < y) {
-            arr[y] = x;
-            cost[x] += cost[y];
-            cost[y] = 0;
-        } else {
-            arr[x] = y;
-            cost[y] += cost[x];
-            cost[x] = 0;
-        }
-    }
-    public static int find(int target) {
-        if(arr[target] == target) {
-            return target;
-        }
-        return arr[target] = find(arr[target]);
-    }
 
     public static class FastReader {
         private final DataInputStream din;
@@ -145,57 +129,19 @@ public class Main16946 {
                 c = read();
             }
             do {
-                ret = ret * 10 + c - '0';
-            } while ((c = read()) >= '0' && c <= '9');
+                ret = (ret << 3) + (ret << 1) + (c & 15);
+            } while ((c = read()) > 32);
 
-            if (neg) {
-                return -ret;
-            }
-            return ret;
+            return neg ? ~ret + 1 : ret;
         }
 
-        public long nextLong() throws IOException {
-            long ret = 0;
+        public char nextChar() throws IOException {
             byte c = read();
-            while (c <= ' ')
+            while (c <= ' ') {
                 c = read();
-            boolean neg = (c == '-');
-            if (neg)
-                c = read();
-            do {
-                ret = ret * 10 + c - '0';
             }
-            while ((c = read()) >= '0' && c <= '9');
-            if (neg)
-                return -ret;
-            return ret;
+            return (char) c;
         }
-
-        public double nextDouble() throws IOException {
-            double ret = 0, div = 1;
-            byte c = read();
-            while (c <= ' ')
-                c = read();
-            boolean neg = (c == '-');
-            if (neg)
-                c = read();
-
-            do {
-                ret = ret * 10 + c - '0';
-            }
-            while ((c = read()) >= '0' && c <= '9');
-
-            if (c == '.') {
-                while ((c = read()) >= '0' && c <= '9') {
-                    ret += (c - '0') / (div *= 10);
-                }
-            }
-
-            if (neg)
-                return -ret;
-            return ret;
-        }
-
         private void fillBuffer() throws IOException {
             bytesRead = din.read(buffer, bufferPointer = 0, BUFFER_SIZE);
             if (bytesRead == -1) {
@@ -209,14 +155,5 @@ public class Main16946 {
             }
             return buffer[bufferPointer++];
         }
-
-        public char nextChar() throws IOException {
-            byte c = read();
-            if (c == '\n') {
-                c = read();
-            }
-            return (char) c;
-        }
-
     }
 }
