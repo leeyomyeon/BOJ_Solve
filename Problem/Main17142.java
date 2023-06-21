@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Main17142 {
     public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out), 1024 * 64);
@@ -36,7 +35,7 @@ public class Main17142 {
                 if(arr[i][j] == 2) {
                     virusList.add(new Point(i, j, 0));
                 }
-                if(arr[i][j] != 1) {
+                if(arr[i][j] == 0) {
                     emptyCnt++;
                 }
             }
@@ -61,12 +60,11 @@ public class Main17142 {
         visited = new boolean[N][N];
         deque = new ArrayDeque<>();
 
-        int cnt = 0;    //  바이러스 갯수 카운트
+        int cnt = 0;    //  빈칸에서 바이러스로 바뀐 칸 갯수 카운트
         for(int idx : selected) {
             Point next = virusList.get(idx);
             visited[next.r][next.c] = true;
             deque.add(next);
-            cnt++;
         }
         int minTime = 0;
         while(!deque.isEmpty()) {
@@ -77,12 +75,9 @@ public class Main17142 {
                 int nc = current.c + dc[d];
                 if(nr >= 0 && nr < N && nc >= 0 && nc < N && !visited[nr][nc] && arr[nr][nc] != 1) {
                     visited[nr][nc] = true;
-                    cnt++;
                     if(arr[nr][nc] == 0) {
+                        cnt++;
                         minTime = (current.cnt + 1);
-                        if(minTime >= MIN) {
-                            return;
-                        }
                     }
                     deque.add(new Point(nr, nc, current.cnt + 1));
                 }
@@ -151,12 +146,3 @@ public class Main17142 {
         }
     }
 }
-/*
-+ 1 2 3 - - 3
-1 2 - 4 - * 2
-1 - - 4 - 2 1
-+ - 4 3 2 1 +
-1 2 3 * 2 - -
-2 - 3 2 1 2 3
-* - 2 1 + 1 2
- */
