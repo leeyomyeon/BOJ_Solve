@@ -1,74 +1,141 @@
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.InputStreamReader;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.StringTokenizer;
+import java.util.ArrayDeque;
+import java.util.Stack;
 
 public class Main9019 {
-    public static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-    public static final int MOD = 10000;
+    public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out), 1024 * 64);
     public static boolean[] visited;
-    public static int from, to;
-    public static Queue<Point> queue;
-    public static class Point {
-        int k;
-        StringBuilder sb;
+    public static Node[] track;
+    public static Stack<Character> stack;
+    public static final int MOD = 10000;
+    public static ArrayDeque<Integer> deque;
+    public static class Node {
+        int next;
+        char c;
 
-        public Point(int k, StringBuilder sb) {
-            this.k = k;
-            this.sb = sb;
+        public Node(int next, char c) {
+            this.next = next;
+            this.c = c;
         }
     }
     public static void main(String[] args) throws Exception {
-        int T = Integer.parseInt(br.readLine());
-        for(int t = 0; t < T; t++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            from = Integer.parseInt(st.nextToken());
-            Point start = new Point(from, new StringBuilder());
-            queue = new LinkedList<>();
+        FastReader fr = new FastReader();
+        int T = fr.nextInt();
+        for(int tc = 0; tc < T; tc++) {
+            int start = fr.nextInt();
+            int end = fr.nextInt();
+            deque = new ArrayDeque<>();
             visited = new boolean[10000];
-            visited[from] = true;
-            queue.add(start);
-            to = Integer.parseInt(st.nextToken());
-
-            while(!queue.isEmpty()) {
-                Point current = queue.poll();
-                if(current.k == to) {
-                    bw.write(current.sb.toString());
+            track = new Node[10000];
+            deque.add(start);
+            while(!deque.isEmpty()) {
+                int current = deque.removeFirst();
+                if(current == end) {
+                    stack = new Stack<>();
+                    tracking(start, end);
+                    while(!stack.isEmpty()) {
+                        bw.write(stack.pop());
+                    }
                     bw.newLine();
                     break;
                 }
                 // D
-                int nk = (current.k << 1) % MOD;
+                int nk = (current << 1) % MOD;
                 if(!visited[nk]) {
                     visited[nk] = true;
-                    queue.add(new Point(nk, new StringBuilder(current.sb).append("D")));
+                    track[nk] = new Node(current, 'D');
+                    deque.add(nk);
                 }
                 // S
-                nk = (current.k + MOD - 1) % MOD;
+                nk = (current + MOD - 1) % MOD;
                 if(!visited[nk]) {
                     visited[nk] = true;
-                    queue.add(new Point(nk, new StringBuilder(current.sb).append("S")));
+                    track[nk] = new Node(current, 'S');
+                    deque.add(nk);
                 }
                 // L
-                nk = (current.k % 1000) * 10 + (current.k / 1000);
+                nk = (current % 1000) * 10 + (current / 1000);
                 if(!visited[nk]) {
                     visited[nk] = true;
-                    queue.add(new Point(nk, new StringBuilder(current.sb).append("L")));
+                    track[nk] = new Node(current, 'L');
+                    deque.add(nk);
                 }
                 // R
-                nk = (current.k % 10) * 1000 + (current.k / 10);
+                nk = (current % 10) * 1000 + (current / 10);
                 if(!visited[nk]) {
                     visited[nk] = true;
-                    queue.add(new Point(nk, new StringBuilder(current.sb).append("R")));
+                    track[nk] = new Node(current, 'R');
+                    deque.add(nk);
                 }
             }
         }
-        br.close();
+        bw.write("");
         bw.flush();
         bw.close();
+    }
+    public static void tracking(int value, int target) {
+        if(target == value) {
+            return;
+        }
+        stack.add(track[target].c);
+        tracking(value, track[target].next);
+    }
+    public static class FastReader {
+        private final DataInputStream din;
+        private final int BUFFER_SIZE = 1 << 16;
+        private final byte[] buffer;
+        private int bufferPointer, bytesRead;
+
+        public FastReader() {
+            din = new DataInputStream(System.in);
+            buffer = new byte[BUFFER_SIZE];
+            bufferPointer = bytesRead = 0;
+        }
+
+        public String readLine() throws IOException {
+            byte[] buf = new byte[BUFFER_SIZE]; // input line length
+            int cnt = 0, c;
+            while ((c = read()) != -1) {
+                if (c == '\n') {
+                    break;
+                }
+                buf[cnt++] = (byte) c;
+            }
+            return new String(buf, 0, cnt);
+        }
+
+        public int nextInt() throws IOException {
+            int ret = 0;
+            byte c = read();
+            while (c <= ' ') {
+                c = read();
+            }
+            boolean neg = (c == '-');
+            if (neg) {
+                c = read();
+            }
+            do {
+                ret = (ret << 3) + (ret << 1) + (c & 15);
+            } while ((c = read()) > 32);
+
+            return neg ? ~ret + 1 : ret;
+        }
+
+        private void fillBuffer() throws IOException {
+            bytesRead = din.read(buffer, bufferPointer = 0, BUFFER_SIZE);
+            if (bytesRead == -1) {
+                buffer[0] = -1;
+            }
+        }
+
+        private byte read() throws IOException {
+            if (bufferPointer == bytesRead) {
+                fillBuffer();
+            }
+            return buffer[bufferPointer++];
+        }
     }
 }
