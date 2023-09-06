@@ -2,52 +2,30 @@ import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.Collections;
-import java.util.LinkedList;
 
 public class Main2751 {
-    public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out), 1024 * 64);
+    public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out), 1024 * 8);
+    public static int N;
+    public static boolean[] arr;
     public static void main(String[] args) throws Exception {
         FastReader fr = new FastReader();
-        int N = fr.nextInt();
-        LinkedList<Integer> pq = new LinkedList<>();
+        N = fr.nextInt();
+        arr = new boolean[2000001];
         for(int i = 0; i < N; i++) {
-            int k = fr.nextInt();
-            pq.add(k);
+            arr[fr.nextInt() + 1000000] = true;
         }
-        Collections.sort(pq);
-        while(!pq.isEmpty()) {
-            int current = pq.removeFirst();
-            boolean abs = current < 0;
-            if(abs) {
-                current *= -1;
-                bw.write(45);
+        for(int i = 0; i < arr.length; i++) {
+            if(arr[i]) {
+                bw.write(Integer.toString(i - 1000000));
+                bw.newLine();
             }
-            int size = current == 0 ? 0 : (int) Math.log10(current);
-            while(size >= 0) {
-                int nextSize = current == 0 ? 0 : (int) Math.log10(current);
-                int div = (int) Math.pow(10, nextSize);
-                while(size > nextSize) {
-                    bw.write(48);
-                    size--;
-                }
-                if(div != 0) {
-                    bw.write((current / div) + 48);
-                    current %= div;
-                } else {
-                    bw.write(48);
-                }
-                size--;
-            }
-            bw.newLine();
         }
         bw.flush();
         bw.close();
     }
-
     public static class FastReader {
         private final DataInputStream din;
-        private final int BUFFER_SIZE = 1 << 16;
+        private final int BUFFER_SIZE = 1 << 13;
         private final byte[] buffer;
         private int bufferPointer, bytesRead;
 
@@ -68,7 +46,6 @@ public class Main2751 {
             }
             return new String(buf, 0, cnt);
         }
-
         public int nextInt() throws IOException {
             int ret = 0;
             byte c = read();
@@ -80,55 +57,10 @@ public class Main2751 {
                 c = read();
             }
             do {
-                ret = ret * 10 + c - '0';
-            } while ((c = read()) >= '0' && c <= '9');
+                ret = (ret << 3) + (ret << 1) + (c & 15);
+            } while ((c = read()) > 32);
 
-            if (neg) {
-                return -ret;
-            }
-            return ret;
-        }
-
-        public long nextLong() throws IOException {
-            long ret = 0;
-            byte c = read();
-            while (c <= ' ')
-                c = read();
-            boolean neg = (c == '-');
-            if (neg)
-                c = read();
-            do {
-                ret = ret * 10 + c - '0';
-            }
-            while ((c = read()) >= '0' && c <= '9');
-            if (neg)
-                return -ret;
-            return ret;
-        }
-
-        public double nextDouble() throws IOException {
-            double ret = 0, div = 1;
-            byte c = read();
-            while (c <= ' ')
-                c = read();
-            boolean neg = (c == '-');
-            if (neg)
-                c = read();
-
-            do {
-                ret = ret * 10 + c - '0';
-            }
-            while ((c = read()) >= '0' && c <= '9');
-
-            if (c == '.') {
-                while ((c = read()) >= '0' && c <= '9') {
-                    ret += (c - '0') / (div *= 10);
-                }
-            }
-
-            if (neg)
-                return -ret;
-            return ret;
+            return neg ? ~ret + 1 : ret;
         }
 
         private void fillBuffer() throws IOException {
