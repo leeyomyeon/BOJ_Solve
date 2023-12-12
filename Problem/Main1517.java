@@ -2,40 +2,29 @@ import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 
 public class Main1517 {
     public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out), 1024 * 64);
     public static int N;
     public static int[] arr, segTree;
-    public static ArrayList<Integer> list;
-    public static HashSet<Integer> set;
     public static boolean[] visited;
     public static void main(String[] args) throws Exception {
         FastReader fr = new FastReader();
         N = fr.nextInt();
-        set = new HashSet<>();
         arr = new int[N + 1];
         for(int i = 1; i <= N; i++) {
             arr[i] = fr.nextInt();
-            set.add(arr[i]);
         }   // 좌표 압축
-        list = new ArrayList<>(set);
-        list.add(Integer.MIN_VALUE);
-        segTree = new int[list.size() * 4];
-        visited = new boolean[list.size()];
-        Collections.sort(list);
+        segTree = new int[N * 4];
+        visited = new boolean[N];
         long sum = 0;
         for(int i = 1; i <= N; i++) {
-            int idx = findIdx(1, list.size() - 1, arr[i]);
+            int idx = findIdx(1, N - 1, arr[i]);
             if(!visited[idx]) {
                 visited[idx] = true;
-                int f = find(1, list.size(), 1, idx, list.size());
+                int f = find(1, N, 1, idx, N);
                 sum += f;
-                update(1, list.size(), 1, idx, 1);
+                update(1, N, 1, idx, 1);
             }
         }
         bw.write(Long.toString(sum));
@@ -67,9 +56,9 @@ public class Main1517 {
     public static int findIdx(int start, int end, int target) {
         while(start < end) {
             int mid = (start + end) / 2;
-            if(list.get(mid) == target) {
+            if(arr[mid] == target) {
                 return mid;
-            } else if(list.get(mid) > target) {
+            } else if(arr[mid] > target) {
                 end = mid - 1;
             } else {
                 start = mid + 1;
