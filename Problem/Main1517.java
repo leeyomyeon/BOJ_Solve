@@ -2,28 +2,33 @@ import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.*;
 
 public class Main1517 {
     public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out), 1024 * 64);
     public static int N;
     public static int[] arr, segTree;
-    public static boolean[] visited;
     public static void main(String[] args) throws Exception {
         FastReader fr = new FastReader();
         N = fr.nextInt();
         arr = new int[N + 1];
+        HashMap<Integer, Queue<Integer>> map = new HashMap<>();
         for(int i = 1; i <= N; i++) {
             arr[i] = fr.nextInt();
-        }   // 좌표 압축
+            if(!map.containsKey(arr[i])) {
+                map.put(arr[i], new LinkedList<>());
+                map.get(arr[i]).add(i);
+            } else {
+                map.get(arr[i]).add(i);
+            }
+        }
         segTree = new int[N * 4];
-        visited = new boolean[N];
+        Arrays.sort(arr);
         long sum = 0;
         for(int i = 1; i <= N; i++) {
-            int idx = findIdx(1, N - 1, arr[i]);
-            if(!visited[idx]) {
-                visited[idx] = true;
-                int f = find(1, N, 1, idx, N);
-                sum += f;
+            if(map.containsKey(arr[i]) && !map.get(arr[i]).isEmpty()) {
+                int idx = map.get(arr[i]).poll();
+                sum += find(1, N, 1, idx, N);;
                 update(1, N, 1, idx, 1);
             }
         }
@@ -45,26 +50,17 @@ public class Main1517 {
         if(target < start || end < target) {
             return;
         }
-        segTree[idx] += value;
         if(start == end) {
+            segTree[idx] = value;
             return;
         }
         int mid = (start + end) / 2;
-        update(start, mid, idx * 2, target, value);
-        update(mid + 1, end, idx * 2 + 1, target, value);
-    }
-    public static int findIdx(int start, int end, int target) {
-        while(start < end) {
-            int mid = (start + end) / 2;
-            if(arr[mid] == target) {
-                return mid;
-            } else if(arr[mid] > target) {
-                end = mid - 1;
-            } else {
-                start = mid + 1;
-            }
+        if(target <= mid) {
+            update(start, mid, idx * 2, target, value);
+        } else {
+            update(mid + 1, end, idx * 2 + 1, target, value);
         }
-        return start;
+        segTree[idx] = segTree[idx * 2] + segTree[idx * 2 + 1];
     }
 
     public static class FastReader {
