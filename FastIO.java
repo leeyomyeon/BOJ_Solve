@@ -1,28 +1,31 @@
-import java.io.BufferedWriter;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
+
 /* 출처 : https://www.geeksforgeeks.org/fast-io-in-java-in-competitive-programming/ */
 public class FastIO {
-    public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out), 1024 * 64);
-
     public static void main(String[] args) throws Exception {
         FastReader fr = new FastReader();
-        bw.write("");
-        bw.flush();
-        bw.close();
+        fr.println(123);
+        fr.flushBuffer();
     }
-
     public static class FastReader {
         private final DataInputStream din;
-        private final int BUFFER_SIZE = 1 << 16;
+        private final DataOutputStream dout;
+        private final int BUFFER_SIZE = 1 << 14;
+        private final int OUT_BUFFER_SIZE = 1 << 18;
         private final byte[] buffer;
-        private int bufferPointer, bytesRead;
-
+        private final byte[] outBuffer, byteBuffer;
+        private int bufferPointer, outBufferPointer, bytesRead;
+        private final byte SPACE = 32;
+        private final byte MINUS = 32;
+        private final byte ASCII_ZERO = 48;
+        private final byte NEW_LINE = 10;
         public FastReader() {
             din = new DataInputStream(System.in);
+            dout = new DataOutputStream(System.out);
             buffer = new byte[BUFFER_SIZE];
-            bufferPointer = bytesRead = 0;
+            outBuffer = new byte[OUT_BUFFER_SIZE];
+            bufferPointer = bytesRead = outBufferPointer = 0;
+            byteBuffer = new byte[20];
         }
 
         public String readLine() throws IOException {
@@ -36,9 +39,7 @@ public class FastIO {
             }
             return new String(buf, 0, cnt);
         }
-
         public int nextInt() throws IOException {
-            // 출처 https://blog.naver.com/jihogrammer/222314445259
             int ret = 0;
             byte c = read();
             while (c <= ' ') {
@@ -54,24 +55,13 @@ public class FastIO {
 
             return neg ? ~ret + 1 : ret;
         }
-
-        public long nextLong() throws IOException {
-            long ret = 0;
+        public char nextChar() throws IOException {
             byte c = read();
-            while (c <= ' ')
+            while (c <= ' ') {
                 c = read();
-            boolean neg = (c == '-');
-            if (neg)
-                c = read();
-            do {
-                ret = ret * 10 + c - '0';
             }
-            while ((c = read()) >= '0' && c <= '9');
-            if (neg)
-                return -ret;
-            return ret;
+            return (char) c;
         }
-
         public double nextDouble() throws IOException {
             double ret = 0, div = 1;
             byte c = read();
@@ -80,23 +70,19 @@ public class FastIO {
             boolean neg = (c == '-');
             if (neg)
                 c = read();
-
             do {
                 ret = ret * 10 + c - '0';
             }
             while ((c = read()) >= '0' && c <= '9');
-
             if (c == '.') {
                 while ((c = read()) >= '0' && c <= '9') {
                     ret += (c - '0') / (div *= 10);
                 }
             }
-
             if (neg)
                 return -ret;
             return ret;
         }
-
         private void fillBuffer() throws IOException {
             bytesRead = din.read(buffer, bufferPointer = 0, BUFFER_SIZE);
             if (bytesRead == -1) {
@@ -109,6 +95,44 @@ public class FastIO {
                 fillBuffer();
             }
             return buffer[bufferPointer++];
+        }
+        private void write(byte b) {
+            if(outBufferPointer == outBuffer.length) {
+                flushBuffer();
+            }
+            outBuffer[outBufferPointer++] = b;
+        }
+        private void flushBuffer() {
+            if(outBufferPointer != 0) {
+                try {
+                    dout.write(outBuffer, 0, outBufferPointer);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                outBufferPointer = 0;
+            }
+        }
+        private void println(int i) {
+            if(i >= 0 && i <= 9) {
+                write((byte) (i + ASCII_ZERO));
+            } else {
+                if(i < 0) {
+                    write(MINUS); // -
+                    i = ~i + 1;
+                }
+                int idx = 0;
+                while(i > 0) {
+                    byteBuffer[idx++] = (byte) ((i % 10) + 48);
+                    i /= 10;
+                }
+                while(idx-->0) {
+                    write(byteBuffer[idx]);
+                }
+            }
+            write(NEW_LINE);
+        }
+        private void space() {
+            write(SPACE);
         }
     }
 }
