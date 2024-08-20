@@ -1,10 +1,16 @@
 import java.io.*;
 
-/* 출처 : https://www.geeksforgeeks.org/fast-io-in-java-in-competitive-programming/ */
+/*
+ * input 출처 : https://www.geeksforgeeks.org/fast-io-in-java-in-competitive-programming/
+ * output 출처 : https://blog.naver.com/adamdoha/222085511764
+ **/
 public class FastIO {
     public static void main(String[] args) throws Exception {
         FastReader fr = new FastReader();
-        fr.println(123);
+        int N = fr.nextInt();
+        long L = fr.nextLong();
+        fr.println(N);
+        fr.println(L);
         fr.flushBuffer();
     }
     public static class FastReader {
@@ -16,7 +22,7 @@ public class FastIO {
         private final byte[] outBuffer, byteBuffer;
         private int bufferPointer, outBufferPointer, bytesRead;
         private final byte SPACE = 32;
-        private final byte MINUS = 32;
+        private final byte MINUS = 45;
         private final byte ASCII_ZERO = 48;
         private final byte NEW_LINE = 10;
         public FastReader() {
@@ -41,6 +47,22 @@ public class FastIO {
         }
         public int nextInt() throws IOException {
             int ret = 0;
+            byte c = read();
+            while (c <= ' ') {
+                c = read();
+            }
+            boolean neg = (c == '-');
+            if (neg) {
+                c = read();
+            }
+            do {
+                ret = (ret << 3) + (ret << 1) + (c & 15);
+            } while ((c = read()) > 32);
+
+            return neg ? ~ret + 1 : ret;
+        }
+        public long nextLong() throws IOException {
+            long ret = 0;
             byte c = read();
             while (c <= ' ') {
                 c = read();
@@ -113,6 +135,25 @@ public class FastIO {
             }
         }
         private void println(int i) {
+            if(i >= 0 && i <= 9) {
+                write((byte) (i + ASCII_ZERO));
+            } else {
+                if(i < 0) {
+                    write(MINUS); // -
+                    i = ~i + 1;
+                }
+                int idx = 0;
+                while(i > 0) {
+                    byteBuffer[idx++] = (byte) ((i % 10) + 48);
+                    i /= 10;
+                }
+                while(idx-->0) {
+                    write(byteBuffer[idx]);
+                }
+            }
+            write(NEW_LINE);
+        }
+        private void println(long i) {
             if(i >= 0 && i <= 9) {
                 write((byte) (i + ASCII_ZERO));
             } else {
