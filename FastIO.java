@@ -6,174 +6,108 @@ import java.io.*;
  **/
 public class FastIO {
     public static void main(String[] args) throws Exception {
-        FastReader fr = new FastReader();
-        int N = fr.nextInt();
-        long L = fr.nextLong();
-        fr.println(N);
-        fr.println(L);
-        fr.flushBuffer();
+        FR fr = new FR();
+        fr.flB();
     }
-    public static class FastReader {
-        private final DataInputStream din;
-        private final DataOutputStream dout;
-        private final int BUFFER_SIZE = 1 << 14;
-        private final int OUT_BUFFER_SIZE = 1 << 18;
-        private final byte[] buffer;
-        private final byte[] outBuffer, byteBuffer;
-        private int bufferPointer, outBufferPointer, bytesRead;
-        private final byte SPACE = 32;
-        private final byte MINUS = 45;
-        private final byte ASCII_ZERO = 48;
-        private final byte NEW_LINE = 10;
-        public FastReader() {
-            din = new DataInputStream(System.in);
-            dout = new DataOutputStream(System.out);
-            buffer = new byte[BUFFER_SIZE];
-            outBuffer = new byte[OUT_BUFFER_SIZE];
-            bufferPointer = bytesRead = outBufferPointer = 0;
-            byteBuffer = new byte[20];
+    public static class FR {
+        private final DataInputStream in;
+        private final DataOutputStream ou;
+        private final int BS=1<<16,OBS=1<<16;
+        private final byte[] bf,ob,by;
+        private int bp,obp,br;
+        private final byte s=32,m=45,z=48,l=10;
+        public FR() throws IOException {
+            in=new DataInputStream(System.in);
+            ou=new DataOutputStream(System.out);
+            bf=new byte[BS];ob=new byte[OBS];bp=br=obp=0;
+            by=new byte[20];
+            fiB();
         }
-
-        public String readLine() throws IOException {
-            byte[] buf = new byte[BUFFER_SIZE]; // input line length
-            int cnt = 0, c;
-            while ((c = read()) != -1) {
-                if (c == '\n') {
-                    break;
-                }
-                buf[cnt++] = (byte) c;
+        public String rL() throws IOException {
+            byte[] b = new byte[BS]; // input line length
+            int i=0,c;
+            while ((c= r())!=-1) {
+                if (c <= ' ') break;
+                b[i++] = (byte) c;
             }
-            return new String(buf, 0, cnt);
+            return new String(b, 0, i);
         }
-        public int nextInt() throws IOException {
-            int ret = 0;
-            byte c = read();
-            while (c <= ' ') {
-                c = read();
-            }
-            boolean neg = (c == '-');
-            if (neg) {
-                c = read();
-            }
-            do {
-                ret = (ret << 3) + (ret << 1) + (c & 15);
-            } while ((c = read()) > 32);
-
-            return neg ? ~ret + 1 : ret;
-        }
-        public long nextLong() throws IOException {
-            long ret = 0;
-            byte c = read();
-            while (c <= ' ') {
-                c = read();
-            }
-            boolean neg = (c == '-');
-            if (neg) {
-                c = read();
-            }
-            do {
-                ret = (ret << 3) + (ret << 1) + (c & 15);
-            } while ((c = read()) > 32);
-
-            return neg ? ~ret + 1 : ret;
-        }
-        public char nextChar() throws IOException {
-            byte c = read();
-            while (c <= ' ') {
-                c = read();
+        public char nC() throws IOException {
+            byte c=r();
+            while(c<=' ') {
+                c=r();
             }
             return (char) c;
         }
-        public double nextDouble() throws IOException {
-            double ret = 0, div = 1;
-            byte c = read();
-            while (c <= ' ')
-                c = read();
-            boolean neg = (c == '-');
-            if (neg)
-                c = read();
-            do {
-                ret = ret * 10 + c - '0';
-            }
-            while ((c = read()) >= '0' && c <= '9');
-            if (c == '.') {
-                while ((c = read()) >= '0' && c <= '9') {
-                    ret += (c - '0') / (div *= 10);
-                }
-            }
-            if (neg)
-                return -ret;
-            return ret;
+        public int nI() throws IOException {
+            int ret = 0;byte c=r();
+            while (c <= ' ') {c=r();}boolean neg=(c=='-');
+            if (neg) c = r();
+            do { ret = (ret << 3) + (ret << 1) + (c & 15); } while ((c = r()) > 32);
+            return neg ? ~ret + 1 : ret;
         }
-        private void fillBuffer() throws IOException {
-            bytesRead = din.read(buffer, bufferPointer = 0, BUFFER_SIZE);
-            if (bytesRead == -1) {
-                buffer[0] = -1;
-            }
+        public long nL() throws IOException {
+            long ret = 0;byte c=r();
+            while (c <= ' ') {c=r();}boolean neg=(c=='-');
+            if (neg) c = r();
+            do { ret = (ret << 3) + (ret << 1) + (c & 15); } while ((c = r()) > 32);
+            return neg ? ~ret + 1 : ret;
         }
-
-        private byte read() throws IOException {
-            if (bufferPointer == bytesRead) {
-                fillBuffer();
-            }
-            return buffer[bufferPointer++];
+        private void fiB() throws IOException {
+            br = in.read(bf, bp = 0, BS);
+            if (br == -1) bf[0] = -1;
         }
-        private void write(byte b) {
-            if(outBufferPointer == outBuffer.length) {
-                flushBuffer();
-            }
-            outBuffer[outBufferPointer++] = b;
+        private byte r() throws IOException {
+            if (bp==br)fiB(); return bf[bp++];
         }
-        private void flushBuffer() {
-            if(outBufferPointer != 0) {
-                try {
-                    dout.write(outBuffer, 0, outBufferPointer);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                outBufferPointer = 0;
+        private void w(byte b) {
+            if(obp==ob.length) flB(); ob[obp++]=b;
+        }
+        private void flB() {
+            if(obp != 0) {
+                try { ou.write(ob, 0, obp);
+                } catch (Exception e) { throw new RuntimeException(e);
+                } obp = 0;
             }
         }
-        private void println(int i) {
-            if(i >= 0 && i <= 9) {
-                write((byte) (i + ASCII_ZERO));
+        private void p(int i) {
+            if(i >= 0 && i <= 9) { w((byte) (i + z)); }
+            else {
+                if(i < 0) {w(m); i=~i+1;}int k = 0;
+                while(i > 0) {by[k++] = (byte) ((i % 10) + 48); i /= 10;}
+                while(k-->0) {w(by[k]);}
+            }
+        }
+        private void p(long i) {
+            if(i >= 0 && i <= 9) { w((byte) (i + z)); }
+            else {
+                if(i < 0) {w(m); i=~i+1;}int k = 0;
+                while(i > 0) {by[k++] = (byte) ((i % 10) + 48); i /= 10;}
+                while(k-->0) {w(by[k]);}
+            }
+        }
+        private void pl(int i) {
+            if(i >= 0 && i <= 9) { w((byte) (i + z)); }
+            else {
+                if(i < 0) {w(m);i=~i+1;}int k = 0;
+                while(i > 0) {by[k++] = (byte) ((i % 10) + 48); i /= 10;}
+                while(k-->0) {w(by[k]);}
+            } w(l);
+        }
+        private void pl(byte[] buf) {
+            for (byte b : buf) {
+                if (b == 0) break;
+                w(b);
+            } w(l);
+        }
+        private void pl(long i) {
+            if(i >= 0 && i <= 9) { w((byte) (i + z));
             } else {
-                if(i < 0) {
-                    write(MINUS); // -
-                    i = ~i + 1;
-                }
-                int idx = 0;
-                while(i > 0) {
-                    byteBuffer[idx++] = (byte) ((i % 10) + 48);
-                    i /= 10;
-                }
-                while(idx-->0) {
-                    write(byteBuffer[idx]);
-                }
-            }
-            write(NEW_LINE);
+                if(i < 0) {w(m);i=~i+1;}int k = 0;
+                while(i > 0) { by[k++] = (byte) ((i % 10) + 48); i /= 10;}
+                while(k-->0) { w(by[k]); }
+            } w(l);
         }
-        private void println(long i) {
-            if(i >= 0 && i <= 9) {
-                write((byte) (i + ASCII_ZERO));
-            } else {
-                if(i < 0) {
-                    write(MINUS); // -
-                    i = ~i + 1;
-                }
-                int idx = 0;
-                while(i > 0) {
-                    byteBuffer[idx++] = (byte) ((i % 10) + 48);
-                    i /= 10;
-                }
-                while(idx-->0) {
-                    write(byteBuffer[idx]);
-                }
-            }
-            write(NEW_LINE);
-        }
-        private void space() {
-            write(SPACE);
-        }
+        private void s() { w(s); }
     }
 }
